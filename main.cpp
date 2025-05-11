@@ -10,9 +10,11 @@ int main(int argc, char* argv[]) {
 		game->handlEvents();
 		game->update();
 		game->render();
+		SDL_Delay(16);
 	}
 
 	game->clean();
+	delete game;
 	
 	return 0;
 }

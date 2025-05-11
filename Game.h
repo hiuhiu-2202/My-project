@@ -10,13 +10,14 @@ public:
 	void update();
 	void render();
 	void clean();
-	bool running() { return isRunning; }
+	bool running() const;
 
 private:
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-	SDL_Texture* carTexture;
-	SDL_Texture* roadTexture;
-	SDL_Rect carRect, roadRect;
-	bool isRunning;
+	SDL_Window* window = nullptr;
+	SDL_Renderer* renderer = nullptr;
+	SDL_Texture* carTexture = nullptr;
+	SDL_Texture* roadTexture = nullptr;
+	
+	SDL_Rect carRect;
+	bool isRunning = true;
 };
