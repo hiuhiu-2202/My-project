@@ -32,11 +32,13 @@ bool movingDown = false;
 void Game::handlEvents() {
 	SDL_Event event;
 	SDL_PollEvent(&event);
+
 	
 	switch (event.type) {
 	case SDL_QUIT:
 		isRunning = false;
 		break;
+
 	case SDL_KEYDOWN:
 		switch (event.key.keysym.sym) {
 		case SDLK_UP:
@@ -53,6 +55,7 @@ void Game::handlEvents() {
 			break;
 		}
 		break;
+
 	case SDL_KEYUP:
 		switch (event.key.keysym.sym) {
 		case SDLK_UP:
@@ -69,6 +72,7 @@ void Game::handlEvents() {
 			break;
 		}
 		break;
+
 	}
 
 }
@@ -76,6 +80,12 @@ void Game::handlEvents() {
 bool Game::running() const {
 	return isRunning;
 }
+
+
+// background di chuyen
+
+SDL_Rect bgRect1 = { 0, 0, 800, 600 };
+SDL_Rect bgRect2 = { 0, -600, 800, 600 };
 
 void Game::update() {
 	float dx = 0, dy = 0;
@@ -99,11 +109,33 @@ void Game::update() {
 
 	carRect.x += dx * speed;
 	carRect.y += dy * speed;
+
+
+	int scrollSpeed = 15;
+	bgRect1.y += scrollSpeed;
+	bgRect2.y += scrollSpeed;
+
+
+	if (bgRect1.y >= 600) {
+		bgRect1.y = -600;
+	}
+	if (bgRect2.y >= 600) {
+		bgRect2.y = -600;
+	}
+
+
+	// gioi han xe trong khoang nhat dinh
+
+	if (carRect.x < 80) carRect.x = 80;
+	if (carRect.y < 0) carRect.y = 0;
+	if (carRect.x + carRect.w > 720) carRect.x = 720 - carRect.w;
+	if (carRect.y + carRect.h > 600) carRect.y = 600 - carRect.h;
 }
 
 void Game::render() {
 	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, roadTexture, NULL, NULL);
+	SDL_RenderCopy(renderer, roadTexture, NULL, &bgRect1);
+	SDL_RenderCopy(renderer, roadTexture, NULL, &bgRect2);
 	SDL_RenderCopy(renderer, carTexture, NULL, &carRect);
 	SDL_RenderPresent(renderer);
 }
@@ -113,3 +145,4 @@ void Game::clean() {
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();
 }
+
