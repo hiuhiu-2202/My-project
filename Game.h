@@ -17,7 +17,13 @@ private:
 	SDL_Renderer* renderer = nullptr;
 	SDL_Texture* carTexture = nullptr;
 	SDL_Texture* roadTexture = nullptr;
+	SDL_Texture* enermyCar1Texture = nullptr;
+	SDL_Texture* enermyCar2Texture = nullptr;
 	
 	SDL_Rect carRect;
+	SDL_Rect enermyCar1Rect;
+	SDL_Rect enermyCar2Rect;
+
+
 	bool isRunning = true;
 };
