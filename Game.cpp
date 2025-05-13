@@ -88,6 +88,11 @@ bool Game::running() const {
 SDL_Rect bgRect1 = { 0, 0, 800, 600 };
 SDL_Rect bgRect2 = { 0, -600, 800, 600 };
 
+// va cham
+bool checkCollision(SDL_Rect a, SDL_Rect b) {
+	return SDL_HasIntersection(&a, &b);
+}
+
 void Game::update() {
 	float dx = 0, dy = 0;
 	float speed = 15.0f;
@@ -149,6 +154,11 @@ void Game::update() {
 	if (enermyCar2Rect.y > 600) {
 		enermyCar2Rect.y = -200;
 		enermyCar2Rect.x = lanePositions[laneIndex];
+	}
+
+	// va cham
+	if (checkCollision(carRect, enermyCar1Rect) || checkCollision(carRect, enermyCar2Rect)) {
+		isRunning = false;
 	}
 }
 
