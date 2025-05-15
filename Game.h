@@ -19,10 +19,14 @@ private:
 	SDL_Texture* roadTexture = nullptr;
 	SDL_Texture* enermyCar1Texture = nullptr;
 	SDL_Texture* enermyCar2Texture = nullptr;
+	SDL_Texture* enermyCar3Texture = nullptr;
+	SDL_Texture* enermyCar4Texture = nullptr;
 	
 	SDL_Rect carRect;
 	SDL_Rect enermyCar1Rect;
 	SDL_Rect enermyCar2Rect;
+	SDL_Rect enermyCar3Rect;
+	SDL_Rect enermyCar4Rect;
 
 
 	bool isRunning = true;
