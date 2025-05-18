@@ -1,4 +1,4 @@
 ﻿  Game.cpp
-D:\My project\My project\Game.cpp(131,18): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
-D:\My project\My project\Game.cpp(132,18): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+D:\My project\My project\Game.cpp(140,18): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+D:\My project\My project\Game.cpp(141,18): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
   My project.vcxproj -> D:\My project\x64\Debug\My project.exe

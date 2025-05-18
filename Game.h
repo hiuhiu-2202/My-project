@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 class Game {
 public:
@@ -11,6 +12,8 @@ public:
 	void render();
 	void clean();
 	bool running() const;
+	int score = 0;
+	TTF_Font* font = nullptr;
 
 private:
 	SDL_Window* window = nullptr;
@@ -20,13 +23,13 @@ private:
 	SDL_Texture* enermyCar1Texture = nullptr;
 	SDL_Texture* enermyCar2Texture = nullptr;
 	SDL_Texture* enermyCar3Texture = nullptr;
-	SDL_Texture* enermyCar4Texture = nullptr;
+	
 	
 	SDL_Rect carRect;
 	SDL_Rect enermyCar1Rect;
 	SDL_Rect enermyCar2Rect;
 	SDL_Rect enermyCar3Rect;
-	SDL_Rect enermyCar4Rect;
+	
 
 
 	bool isRunning = true;

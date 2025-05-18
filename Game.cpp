@@ -1,15 +1,20 @@
 #include "Game.h"
 #include "TextureManager.h"
 #include <cstdlib>
+#include <SDL_ttf.h>
+#include <string>
 
 
 Game::Game() {}
 Game::~Game() {}
 
+using namespace std;
+
 // chuong ngai vat
-const int NUM_OBSTCLES = 4;
+const int NUM_OBSTCLES = 3;
 SDL_Rect obstacles[NUM_OBSTCLES];
 const int lanePositions[] = { 190, 310, 430, 550 };
+int enermySpeed = 5;
 
 void Game::init(const char* title, int x, int y, int width, int height, bool fullscreen) {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -20,8 +25,7 @@ void Game::init(const char* title, int x, int y, int width, int height, bool ful
 	roadTexture = TextureManager::LoadTexture("assets/background-1.png", renderer);
 	enermyCar1Texture = TextureManager::LoadTexture("assets/car2.png", renderer);
 	enermyCar2Texture = TextureManager::LoadTexture("assets/car8.png", renderer);
-	enermyCar3Texture = TextureManager::LoadTexture("assets/car5.png", renderer);
-	enermyCar4Texture = TextureManager::LoadTexture("assets/car7.png", renderer);
+	enermyCar3Texture = TextureManager::LoadTexture("assets/car7.png", renderer);
 
 	carRect = { 310, 400, 52, 111 };
 
@@ -29,7 +33,7 @@ void Game::init(const char* title, int x, int y, int width, int height, bool ful
 	for (int i = 0; i < NUM_OBSTCLES; i++) {
 		int lane = rand() % 4;
 		obstacles[i].x = lanePositions[lane];
-		obstacles[i].y = -(rand() % 300 + i * 150);
+		obstacles[i].y = -(rand() % 200 + i * 150);
 		obstacles[i].w = 50;
 		obstacles[i].h = 110;
 	}
@@ -37,6 +41,11 @@ void Game::init(const char* title, int x, int y, int width, int height, bool ful
 	
 
 	isRunning = true;
+
+	//  diem so
+	TTF_Init();
+	font = TTF_OpenFont("assets/arial.ttf", 24);
+	
 }
 
 bool movingRight = false;
@@ -110,7 +119,7 @@ bool checkCollision(SDL_Rect a, SDL_Rect b) {
 
 void Game::update() {
 	float dx = 0, dy = 0;
-	float speed = 5.0f;
+	float speed = 6.0f;
 	if (movingUp) {
 		dy -= 1;
 	}
@@ -154,7 +163,7 @@ void Game::update() {
 
 	// chuong ngai vat
 	for (int i = 0; i < NUM_OBSTCLES; i++) {
-		obstacles[i].y += 5;
+		obstacles[i].y += enermySpeed;
 
 		if (obstacles[i].y > 600) {
 			int lane = rand() % 4;
@@ -165,6 +174,19 @@ void Game::update() {
 		}
 	}
 
+	// va cham
+	for (int i = 0; i < 3; i++) {
+		if (checkCollision(carRect, obstacles[i])) {
+			isRunning = false;
+			break;
+		}
+	}
+
+	//diem so
+	score++;
+	if (score % 500 == 0) {
+		enermySpeed += 1;
+	}
 	
 }
 
@@ -176,7 +198,16 @@ void Game::render() {
 	SDL_RenderCopy(renderer, enermyCar1Texture, NULL, &obstacles[0]);
 	SDL_RenderCopy(renderer, enermyCar2Texture, NULL, &obstacles[1]);
 	SDL_RenderCopy(renderer, enermyCar3Texture, NULL, &obstacles[2]);
-	SDL_RenderCopy(renderer, enermyCar4Texture, NULL, &obstacles[3]);
+	// diem so
+	SDL_Color textColor = { 255, 255, 255, 255 };
+	string scoreText = "Score: " + to_string(score);
+	SDL_Surface* textSurface = TTF_RenderText_Solid(font, scoreText.c_str(), textColor);
+	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+	SDL_Rect textRect = { 20, 20, textSurface->w, textSurface->h };
+	SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+	SDL_FreeSurface(textSurface);
+	SDL_DestroyTexture(textTexture);
+
 	SDL_RenderPresent(renderer);
 }
 
