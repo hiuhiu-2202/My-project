@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include "GameOverMenu.h"
 
 class Game {
 public:
@@ -11,9 +12,11 @@ public:
 	void update();
 	void render();
 	void clean();
+	void resetGame();
 	bool running() const;
 	int score = 0;
 	TTF_Font* font = nullptr;
+	GameOverMenu* gameOverMenu = nullptr;
 
 private:
 	SDL_Window* window = nullptr;

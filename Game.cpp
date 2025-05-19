@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "TextureManager.h"
+#include "GameOverMenu.h"
 #include <cstdlib>
 #include <SDL_ttf.h>
 #include <string>
@@ -14,7 +15,7 @@ using namespace std;
 const int NUM_OBSTCLES = 3;
 SDL_Rect obstacles[NUM_OBSTCLES];
 const int lanePositions[] = { 190, 310, 430, 550 };
-int enermySpeed = 5;
+int enermySpeed = 4;
 
 void Game::init(const char* title, int x, int y, int width, int height, bool fullscreen) {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -45,6 +46,9 @@ void Game::init(const char* title, int x, int y, int width, int height, bool ful
 	//  diem so
 	TTF_Init();
 	font = TTF_OpenFont("assets/arial.ttf", 24);
+
+	// menu gameover
+	gameOverMenu = new GameOverMenu(renderer, font, width, height);
 	
 }
 
@@ -52,6 +56,8 @@ bool movingRight = false;
 bool movingLeft = false;
 bool movingUp = false;
 bool movingDown = false;
+
+bool isgameOver = false;
 
 void Game::handlEvents() {
 	SDL_Event event;
@@ -97,6 +103,18 @@ void Game::handlEvents() {
 		}
 		break;
 
+	}
+
+	if (isgameOver) {
+		int result = gameOverMenu->handleEvent(event);
+		if (result == 1) {
+			resetGame();
+			isgameOver = false;
+		}
+		else if (result == 2) {
+			isRunning = false;
+		}
+		return;
 	}
 
 }
@@ -177,27 +195,48 @@ void Game::update() {
 	// va cham
 	for (int i = 0; i < 3; i++) {
 		if (checkCollision(carRect, obstacles[i])) {
-			isRunning = false;
+			isgameOver = true;
 			break;
 		}
 	}
 
 	//diem so
 	score++;
-	if (score % 500 == 0) {
+	if (score % 1000 == 0) {
 		enermySpeed += 1;
 	}
+
+	
+}
+
+void Game::resetGame() {
+	score = 0;
+
+	carRect.x = 310;
+	carRect.y = 400;
+
+	for (int i = 0; i < NUM_OBSTCLES; i++) {
+		obstacles[i].x = rand() % 550;
+		obstacles[i].y = rand() % -800;
+	}
+
+	enermySpeed = 4;
+
+	isgameOver = false;
 	
 }
 
 void Game::render() {
 	SDL_RenderClear(renderer);
+
+	// background + car
 	SDL_RenderCopy(renderer, roadTexture, NULL, &bgRect1);
 	SDL_RenderCopy(renderer, roadTexture, NULL, &bgRect2);
 	SDL_RenderCopy(renderer, carTexture, NULL, &carRect);
 	SDL_RenderCopy(renderer, enermyCar1Texture, NULL, &obstacles[0]);
 	SDL_RenderCopy(renderer, enermyCar2Texture, NULL, &obstacles[1]);
 	SDL_RenderCopy(renderer, enermyCar3Texture, NULL, &obstacles[2]);
+
 	// diem so
 	SDL_Color textColor = { 255, 255, 255, 255 };
 	string scoreText = "Score: " + to_string(score);
@@ -207,6 +246,21 @@ void Game::render() {
 	SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 	SDL_FreeSurface(textSurface);
 	SDL_DestroyTexture(textTexture);
+
+	// game over
+	if (isgameOver) {
+		SDL_Color red = { 255, 0, 0, 255 };
+		SDL_Surface* overSurface = TTF_RenderText_Solid(font, "Game Over", red);
+		SDL_Texture* overTexture = SDL_CreateTextureFromSurface(renderer, overSurface);
+		SDL_Rect overRect = { 300, 200, overSurface->w, overSurface->h };
+		SDL_RenderCopy( renderer, overTexture, NULL, &overRect );
+		SDL_FreeSurface(overSurface);
+		SDL_DestroyTexture(overTexture);
+	}
+
+	if (isgameOver) {
+		gameOverMenu->render(score);
+	}
 
 	SDL_RenderPresent(renderer);
 }
