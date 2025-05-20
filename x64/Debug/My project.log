@@ -1,4 +1,5 @@
-﻿  Game.cpp
-D:\My project\My project\Game.cpp(158,18): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
-D:\My project\My project\Game.cpp(159,18): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+﻿  Enermy.cpp
+  Game.cpp
+  main.cpp
+  Generating Code...
   My project.vcxproj -> D:\My project\x64\Debug\My project.exe
