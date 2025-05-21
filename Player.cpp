@@ -90,4 +90,11 @@ SDL_Rect Player::getRect() const {
 void Player::reset() {
 	rect.x = 310;
 	rect.y = 400;
+	movingUp = false;
+	movingDown = false;
+	movingLeft = false;
+	movingRight = false;
+
+
+
 }

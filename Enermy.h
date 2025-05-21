@@ -15,6 +15,10 @@ public:
 		rect.x = x;
 		rect.y = y;
 	}
+	int enermySpeed = 4;
+	void setSpeed(int s) {
+		enermySpeed = s;
+	}
 
 private:
 	SDL_Rect rect;

@@ -14,6 +14,9 @@
 Game::Game() {}
 Game::~Game() {}
 
+MainMenu* mainMenu = nullptr;
+GameState gameState = GameState::MainMenu;
+
 using namespace std;
 
 // chuong ngai vat
@@ -34,6 +37,13 @@ void Game::init(const char* title, int x, int y, int width, int height, bool ful
 	SDL_Init(SDL_INIT_VIDEO);
 	window = SDL_CreateWindow(title, x, y, width, height, fullscreen);
 	renderer = SDL_CreateRenderer(window, -1, 0);
+
+	//  font
+	TTF_Init();
+	font = TTF_OpenFont("assets/arial.ttf", 24);
+
+	mainMenu = new MainMenu(renderer, font, width, height);
+	gameState = GameState::MainMenu;
 	player = new Player(TextureManager::LoadTexture("assets/car1.png", renderer), 310, 400, 52, 111);
 	roadTexture = TextureManager::LoadTexture("assets/background-1.png", renderer);
 	obstacles[0] = new Enermy(TextureManager::LoadTexture("assets/car2.png", renderer), lanePositions[rand() % 4], -100, 110, 50);
@@ -47,9 +57,7 @@ void Game::init(const char* title, int x, int y, int width, int height, bool ful
 
 	isRunning = true;
 
-	//  diem so
-	TTF_Init();
-	font = TTF_OpenFont("assets/arial.ttf", 24);
+	
 
 	// menu gameover
 	gameOverMenu = new GameOverMenu(renderer, font, width, height);
@@ -60,33 +68,76 @@ bool checkCollision(SDL_Rect a, SDL_Rect b) {
 	return SDL_HasIntersection(&a, &b);
 }
 
+void Game::resetGame() {
+	score = 0;
+	vector<Enermy*> obsVec(obstacles, obstacles + NUM_OBSTCLES);
+	player->reset();
+	for (int i = 0; i < NUM_OBSTCLES; i++) {
+		obstacles[i]->resetPosition(obsVec);
+	}
+	vector<int> randomLanes = getRandomLanes();
+	obstacles[0]->setPosition(randomLanes[0], -100);
+	obstacles[1]->setPosition(randomLanes[1], -300);
+	obstacles[2]->setPosition(randomLanes[2], -500);
+	for (int i = 0; i < NUM_OBSTCLES; i++) {
+		obstacles[i]->setSpeed(enermySpeed);
+	}
+	enermySpeed = 4;
+	isgameOver = false;
+	isRunning = true;
+	gameState = GameState::Playing;
+}
+
 void Game::handlEvents() {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			isRunning = false;
 		}
-		player->handleInput(event);
-	}
-	player->update();
-	vector<Enermy*> obsVec(obstacles, obstacles + NUM_OBSTCLES);
-	for (int i = 0; i < NUM_OBSTCLES; i++) {
-		obstacles[i]->update();
-		if (obstacles[i]->getRect().y > 600) {
-			obstacles[i]->resetPosition(obsVec);
+		if (gameState == GameState::MainMenu) {
+			int result = mainMenu->handleEvent(event);
+			if (result == 1) {
+				gameState = GameState::Playing;
+			}
+			else if (result == 2) {
+				
+			}
+			else if (result == 3) {
+				isRunning = false;
+			}
+		}
+		else if (gameState == GameState::Playing) {
+			player->handleInput(event);
+		}
+		else if (gameState == GameState::GameOver) {
+			int result = gameOverMenu->handleEvent(event);
+			if (result == 1) {
+				resetGame();
+			}
+			else if (result == 2) {
+				isRunning = false;
+			}
 		}
 	}
-
-	
-
-	// kiem tra va cham
-	for (int i = 0; i < NUM_OBSTCLES; i++) {
-		if (checkCollision(player->getRect(), obstacles[i]->getRect())) {
-			isgameOver = true;
-			break;
+	if (gameState == GameState::Playing) {
+		player->update();
+		vector<Enermy*> obsVec(obstacles, obstacles + NUM_OBSTCLES);
+		for (int i = 0; i < NUM_OBSTCLES; i++) {
+			obstacles[i]->update();
+			if (obstacles[i]->getRect().y > 600) {
+				obstacles[i]->resetPosition(obsVec);
+			}
 		}
-	}
+		// kiem tra va cham
+		for (int i = 0; i < NUM_OBSTCLES; i++) {
+			if (checkCollision(player->getRect(), obstacles[i]->getRect())) {
+				isgameOver = true;
+				gameState = GameState::GameOver;
+				break;
+			}
+		}
 
+	}
 }
 
 bool Game::running() const {
@@ -115,54 +166,66 @@ void Game::update() {
 	}
 
 	//diem so
-	score++;
-	if (score % 1000 == 0) {
-		enermySpeed += 1;
+	if (!isgameOver) {
+		score++;
+		if (score % 500 == 0) {
+			enermySpeed++;
+			for (int i = 0; i < NUM_OBSTCLES; i++) {
+				obstacles[i]->setSpeed(enermySpeed);
+			}
+		}
 	}
-
 	
 }
 
 void Game::render() {
 	SDL_RenderClear(renderer);
 
-	// background + car
-	SDL_RenderCopy(renderer, roadTexture, NULL, &bgRect1);
-	SDL_RenderCopy(renderer, roadTexture, NULL, &bgRect2);
-	player->render(renderer);
-	for (int i = 0; i < NUM_OBSTCLES; i++) {
-		obstacles[i]->render(renderer);
+	if (gameState == GameState::MainMenu) {
+		mainMenu->render();
 	}
+	else {
+		// background + car
+		SDL_RenderCopy(renderer, roadTexture, NULL, &bgRect1);
+		SDL_RenderCopy(renderer, roadTexture, NULL, &bgRect2);
+		player->render(renderer);
+		for (int i = 0; i < NUM_OBSTCLES; i++) {
+			obstacles[i]->render(renderer);
+		}
 
-	// diem so
-	SDL_Color textColor = { 255, 255, 255, 255 };
-	string scoreText = "Score: " + to_string(score);
-	SDL_Surface* textSurface = TTF_RenderText_Solid(font, scoreText.c_str(), textColor);
-	SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-	SDL_Rect textRect = { 20, 20, textSurface->w, textSurface->h };
-	SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-	SDL_FreeSurface(textSurface);
-	SDL_DestroyTexture(textTexture);
+		// diem so
+		SDL_Color textColor = { 255, 255, 255, 255 };
+		string scoreText = "Score: " + to_string(score);
+		SDL_Surface* textSurface = TTF_RenderText_Solid(font, scoreText.c_str(), textColor);
+		SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+		SDL_Rect textRect = { 20, 20, textSurface->w, textSurface->h };
+		SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+		SDL_FreeSurface(textSurface);
+		SDL_DestroyTexture(textTexture);
 
-	// game over
-	if (isgameOver) {
-		SDL_Color red = { 255, 0, 0, 255 };
-		SDL_Surface* overSurface = TTF_RenderText_Solid(font, "Game Over", red);
-		SDL_Texture* overTexture = SDL_CreateTextureFromSurface(renderer, overSurface);
-		SDL_Rect overRect = { 300, 200, overSurface->w, overSurface->h };
-		SDL_RenderCopy( renderer, overTexture, NULL, &overRect );
-		SDL_FreeSurface(overSurface);
-		SDL_DestroyTexture(overTexture);
+		// game over
+		if (isgameOver) {
+			SDL_Color red = { 255, 0, 0, 255 };
+			SDL_Surface* overSurface = TTF_RenderText_Solid(font, "Game Over", red);
+			SDL_Texture* overTexture = SDL_CreateTextureFromSurface(renderer, overSurface);
+			SDL_Rect overRect = { 300, 200, overSurface->w, overSurface->h };
+			SDL_RenderCopy(renderer, overTexture, NULL, &overRect);
+			SDL_FreeSurface(overSurface);
+			SDL_DestroyTexture(overTexture);
+		}
+
+		if (isgameOver) {
+			gameOverMenu->render(score);
+		}
 	}
-
-	if (isgameOver) {
-		gameOverMenu->render(score);
-	}
+	
 
 	SDL_RenderPresent(renderer);
 }
 
 void Game::clean() {
+	delete mainMenu;
+	mainMenu = nullptr;
 	delete player;
 	for (int i = 0; i < NUM_OBSTCLES; i++) {
 		delete obstacles[i];

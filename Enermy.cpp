@@ -7,7 +7,6 @@ using namespace std;
 
 const int NUM_OBSTCLES = 3;
 const int lanePositions[] = { 190, 310, 430, 550 };
-int enermySpeed = 4;
 bool isgameOver = false;
 
 Enermy::Enermy(SDL_Texture* tex, int x, int y, int w, int h) : texture(tex) {

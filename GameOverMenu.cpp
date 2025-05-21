@@ -17,7 +17,7 @@ void GameOverMenu::render(int score) {
 	SDL_RenderFillRect(renderer, &overlay);
 
 	// tieu de
-	renderText("Game Over", screenWidth / 2 - 50, 100, { 255, 0, 0, 255 });
+	renderText("Game Over", screenWidth / 2 - 50, 150, { 255, 0, 0, 255 });
 
 	// play again
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);

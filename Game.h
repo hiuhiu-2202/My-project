@@ -4,6 +4,20 @@
 #include "GameOverMenu.h"
 #include "Player.h"
 #include "Enermy.h"
+#include "MainMenu.h"
+
+
+extern MainMenu* mainMenu;
+
+
+enum class GameState {
+	MainMenu,
+	Playing,
+	Settings,
+	GameOver
+};
+
+extern GameState gameState;
 
 class Game {
 public:
@@ -31,3 +45,4 @@ private:
 	bool isgameOver = false;
 	bool isRunning = true;
 };
+
