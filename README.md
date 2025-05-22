@@ -43,3 +43,8 @@ III. Tài liệu tham khảo
   1. Tham khảo Code mẫu: Lazyfoo, file tài liệu của giảng viên, Youtube, Github của các anh khoá trước.
   2. Hình ảnh được lấy từ: OpenGameArt
   3. Âm thanh được lấy từ: PixaBay
+
+IV. Mức độ can thiệp AI
+  1. Tham khảo các hàm cần thiết để xử lý các dữ kiện trong game
+  2. Sửa lỗi khi code
+  3. Tối ưu hoá code
