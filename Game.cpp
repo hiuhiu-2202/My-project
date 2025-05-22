@@ -12,18 +12,21 @@
 #include <random>
 #include <string>
 
+using namespace std;
 
 Game::Game() {}
 Game::~Game() {}
 
+// main menu
 MainMenu* mainMenu = nullptr;
 GameState gameState = GameState::MainMenu;
 
+//audio menu
 AudioManager* audioManager = nullptr;
 SettingMenu* settingMenu = nullptr;
 int volume = 64;
 
-using namespace std;
+
 
 // chuong ngai vat
 const int NUM_OBSTCLES = 3;
