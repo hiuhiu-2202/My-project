@@ -3,6 +3,8 @@
 #include "GameOverMenu.h"
 #include "Player.h"
 #include "Enermy.h"
+#include "AudioManager.h"
+#include "SettingMenu.h"
 #include <cstdlib>
 #include <SDL_ttf.h>
 #include <vector>
@@ -16,6 +18,10 @@ Game::~Game() {}
 
 MainMenu* mainMenu = nullptr;
 GameState gameState = GameState::MainMenu;
+
+AudioManager* audioManager = nullptr;
+SettingMenu* settingMenu = nullptr;
+int volume = 64;
 
 using namespace std;
 
@@ -61,6 +67,16 @@ void Game::init(const char* title, int x, int y, int width, int height, bool ful
 
 	// menu gameover
 	gameOverMenu = new GameOverMenu(renderer, font, width, height);
+
+
+	//audio
+	audioManager = new AudioManager();
+	audioManager->loadAudio("assets/bgmusic.mp3");
+	audioManager->loadEffect("assets/crash.mp3");
+	audioManager->playMusic();
+
+	// setting
+	settingMenu = new SettingMenu(renderer, font, width, height);
 	
 }
 
@@ -100,7 +116,7 @@ void Game::handlEvents() {
 				gameState = GameState::Playing;
 			}
 			else if (result == 2) {
-				
+				gameState = GameState::Settings;
 			}
 			else if (result == 3) {
 				isRunning = false;
@@ -108,6 +124,13 @@ void Game::handlEvents() {
 		}
 		else if (gameState == GameState::Playing) {
 			player->handleInput(event);
+		}
+		else if (gameState == GameState::Settings) {
+			int result = settingMenu->handleEvent(event, volume);
+			audioManager->setMusicVolume(volume);
+			if (result == 1) {
+				gameState = GameState::MainMenu;
+			}
 		}
 		else if (gameState == GameState::GameOver) {
 			int result = gameOverMenu->handleEvent(event);
@@ -133,6 +156,7 @@ void Game::handlEvents() {
 			if (checkCollision(player->getRect(), obstacles[i]->getRect())) {
 				isgameOver = true;
 				gameState = GameState::GameOver;
+				audioManager->playEffect();
 				break;
 			}
 		}
@@ -184,6 +208,9 @@ void Game::render() {
 	if (gameState == GameState::MainMenu) {
 		mainMenu->render();
 	}
+	else if (gameState == GameState::Settings) {
+		settingMenu->render(volume);
+	}
 	else {
 		// background + car
 		SDL_RenderCopy(renderer, roadTexture, NULL, &bgRect1);
@@ -232,6 +259,11 @@ void Game::clean() {
 	}
 	delete gameOverMenu;
 	gameOverMenu = nullptr;
+	audioManager->clean();
+	delete audioManager;
+	audioManager = nullptr;
+	delete settingMenu;
+	settingMenu = nullptr;
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	SDL_Quit();
